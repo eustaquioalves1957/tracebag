@@ -3,157 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Cadastro da Bagagem | TraceBag</title>
-  <link rel="stylesheet" href="style.css">
 
   <style>
-    .cadastro {
-      max-width: 650px;
-      margin: 60px auto;
-      padding: 30px;
-    }
-
-    .cadastro h1 {
-      color: #073b6f;
-      margin-bottom: 10px;
-    }
-
-    .cadastro p {
-      margin-bottom: 30px;
-    }
-
-    .campo {
-      margin-bottom: 20px;
-    }
-
-    .campo label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 7px;
-    }
-
-    .campo input,
-    .campo select,
-    .campo textarea {
-      width: 100%;
-      padding: 12px;
+    * {
       box-sizing: border-box;
-      border: 1px solid #ccc;
-…
-}
-  </style>  
-</head>
-<body>
-  <main class="cadastro">
-    <h1>Cadastro sua bagagem</h1>
-    <p>Identifique sua bagagem com seguranca.</p>
-    <form>
-      <div class="campo">
-        <label for="nome">Nome da bagagem</label>
-        <label for="nome">Nome da bagagem</label>
-        <input type="text" id="nome" name="nome" required>
-</div>
+    }
 
-<div class="campo">
-  <label for="tipo">Tipo de bagagem</label>
-  <select id="tipo" name="tipo" required>
-    <option value="">Selecione</option>
-    <option value="mala">Mala</option>
-    <option value="mochila">Mochila</option>
-    <option value="bolsa">Bolsa</option>
-    <option value="outro">Outro</option>
-  </select>
-</div>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
 
-<div class="campo">
-  <label for="cor">Cor da bagagem</label>
-  <input type="text" id="cor" name="cor" required>
-</div>
+    header {
+      background: #0b3a66;
+      color: white;
+      padding: 24px 16px;
+      text-align: center;
+    }
 
-<div class="campo">
-  <label for="marca">Marca</label>
-  <input type="text" id="marca" name="marca">
-</div>
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
 
-<div class="campo">
-  <label for="observacoes">Observações</label>
-  <textarea id="observacoes" name="observacoes"></textarea>
-</div>
-[18:22, 14/09/2026] Eustaquio Alves: <input type="text" id="nome" name="nome" required>
-</div>
+    header p {
+      margin: 8px 0 0;
+      font-size: 15px;
+    }
 
-<div class="campo">
-  <label for="tipo">Tipo de bagagem</label>
-  <select id="tipo" name="tipo" required>
-    <option value="">Selecione</option>
-    <option value="mala">Mala</option>
-    <option value="mochila">Mochila</option>
-    <option value="bolsa">Bolsa</option>
-    <option value="outro">Outro</option>
-  </select>
-</div>
+    main {
+      max-width: 760px;
+      margin: 30px auto;
+      padding: 0 16px;
+    }
 
-<div class="campo">
-  <label for="cor">Cor da bagagem</label>
-  <input type="text" id="cor" name="cor" required>
-</div>
-
-<div class="campo">
-  <label for="marca">Marca</label>
-  <input type="text" id="marca" name="marca">
-</div>
-
-<div class="campo">
-  <label for="observacoes">Observações</label>
-  <textarea id="observacoes" name="observacoes"></textarea>
-</div>
- <div class="campo">
-  <label for="nomeDono">Nome do proprietário</label>
-  <input type="text" id="nomeDono" name="nomeDono" required>
-</div>
-
-<div class="campo">
-  <label for="telefone">Telefone/WhatsApp</label>
-  <input type="tel" id="telefone" name="telefone" required>
-</div>
-
-<div class="campo">
-  <label for="email">E-mail</label>
-  <input type="email" id="email" name="email" required>
-</div>
-<div class="campo">
-  <label for="cidade">Cidade</label>
-  <input type="text" id="cidade" name="cidade" required>
-</div>
-
-<div class="campo">
-  <label for="estado">Estado</label>
-  <input type="text" id="estado" name="estado" required>
-</div>
-
-<button type="submit">Cadastrar bagagem</button>
-
-</form>
-</main>
- <script>
-document.querySelector("form").addEventListener("submit", function(event) {
-    event.preventDefault();
-
-    const dadosBagagem = {
-        nome: document.getElementById("nome").value,
-        tipo: document.getElementById("tipo").value,
-        cor: document.getElementById("cor").value,
-        marca: document.getElementById("marca").value,
-        telefone: document.getElementById("telefone").value,
-        email: document.getElementById("email").value,
-        cidade: document.getElementById("cidade").value,
-        estado: document.getElementById("estado").value
-    };
-
-    localStorage.setItem("tracebag_bagagem", JSON.stringify(dadosBagagem));
-
-    alert("Bagagem cadastrada com sucesso!");
-});
-</script> 
-</body>
-</html>
+    .card {
+      background: white;
+      border-radius: 12…
