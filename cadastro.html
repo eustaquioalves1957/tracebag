@@ -135,5 +135,25 @@
 
 </form>
 </main>
+ <script>
+document.querySelector("form").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const dadosBagagem = {
+        nome: document.getElementById("nome").value,
+        tipo: document.getElementById("tipo").value,
+        cor: document.getElementById("cor").value,
+        marca: document.getElementById("marca").value,
+        telefone: document.getElementById("telefone").value,
+        email: document.getElementById("email").value,
+        cidade: document.getElementById("cidade").value,
+        estado: document.getElementById("estado").value
+    };
+
+    localStorage.setItem("tracebag_bagagem", JSON.stringify(dadosBagagem));
+
+    alert("Bagagem cadastrada com sucesso!");
+});
+</script> 
 </body>
 </html>
