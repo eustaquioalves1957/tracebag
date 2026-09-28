@@ -233,21 +233,59 @@
     <footer>
         TraceBag — Identificação e recuperação de bagagens
     </footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-    <script>
-        document
-            .getElementById("formCadastro")
-            .addEventListener("submit", function(event) {
+<script>
+function gerarCodigo() {
+    const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let codigo = "TB-";
 
-                event.preventDefault();
+    for (let i = 0; i < 8; i++) {
+        codigo += caracteres.charAt(
+            Math.floor(Math.random() * caracteres.length)
+        );
+    }
 
-                alert(
-                    "Página de cadastro funcionando corretamente. " +
-                    "A próxima etapa será conectar o cadastro ao sistema " +
-                    "TraceBag e gerar o QR Code."
-                );
-            });
-    </script>
+    return codigo;
+}
+
+const codigoTraceBag = gerarCodigo();
+
+document.getElementById("codigoBagagem").textContent = codigoTraceBag;
+
+const enderecoIdentificacao =
+    window.location.origin +
+    window.location.pathname.replace("qr.html", "") +
+    "bagagem.html?id=" +
+    encodeURIComponent(codigoTraceBag);
+
+new QRCode(document.getElementById("qrcode"), {
+    text: enderecoIdentificacao,
+    width: 220,
+    height: 220
+});
+
+function baixarQRCode() {
+    const imagem = document.querySelector("#qrcode img");
+
+    if (!imagem) {
+        alert("Aguarde a geração do QR Code.");
+        return;
+    }
+
+    const link = document.createElement("a");
+
+    link.href = imagem.src;
+    link.download = "TraceBag-" + codigoTraceBag + ".png";
+
+    link.click();
+}
+
+function imprimirQRCode() {
+    window.print();
+}
+</script>
+    
 
 </body>
 </html>
