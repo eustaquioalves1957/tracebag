@@ -146,6 +146,16 @@
                 padding: 20px;
             }
         }
+        #qrcode { padding: 16px; background: white; width: fit-content; margin: 16px auto; }
+        #resultado { text-align: center; margin-top: 24px; }
+        #resultado button { margin-top: 12px; }
+        #erro { color: #a01515; }
+        @media print {
+            header, footer, form, .descricao, .aviso, .voltar, .card > h2,
+            #resultado button, #resultado > p:last-child, #enderecoBagagem, #erro { display: none !important; }
+            body, .card { background: white; box-shadow: none; }
+            #resultado { break-inside: avoid; }
+        }
     </style>
 </head>
 
@@ -217,6 +227,16 @@
 
             </form>
 
+            <p id="erro" role="alert" hidden></p>
+            <section id="resultado" hidden aria-live="polite">
+                <h2>QR Code da bagagem</h2>
+                <p id="codigoBagagem"></p>
+                <div id="qrcode"></div>
+                <p><a id="enderecoBagagem">Abrir identificação</a></p>
+                <button type="button" id="baixar">Baixar QR Code</button>
+                <button type="button" id="imprimir">Imprimir etiqueta</button>
+                <p>Este código identifica a bagagem. O cadastro e o aviso ao proprietário ainda não estão conectados a um serviço online.</p>
+            </section>
             <div class="aviso">
                 Seus dados pessoais não devem ficar expostos diretamente
                 na bagagem. O objetivo do TraceBag é permitir a identificação
@@ -233,57 +253,59 @@
     <footer>
         TraceBag — Identificação e recuperação de bagagens
     </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="vendor/qrcode.min.js"></script>
 
 <script>
-function gerarCodigo() {
-    const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let codigo = "TB-";
-
-    for (let i = 0; i < 8; i++) {
-        codigo += caracteres.charAt(
-            Math.floor(Math.random() * caracteres.length)
-        );
-    }
-
-    return codigo;
-}
-
-const codigoTraceBag = gerarCodigo();
-
-document.getElementById("codigoBagagem").textContent = codigoTraceBag;
-
-const enderecoIdentificacao =
-    window.location.origin +
-    window.location.pathname.replace("qr.html", "") +
-    "bagagem.html?id=" +
-    encodeURIComponent(codigoTraceBag);
-
-new QRCode(document.getElementById("qrcode"), {
-    text: enderecoIdentificacao,
-    width: 220,
-    height: 220
-});
-
-function baixarQRCode() {
-    const imagem = document.querySelector("#qrcode img");
-
-    if (!imagem) {
-        alert("Aguarde a geração do QR Code.");
+let codigoTraceBag = '';
+const form = document.getElementById('formCadastro');
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const erro = document.getElementById('erro');
+    erro.hidden = true;
+    if (typeof QRCode === 'undefined') {
+        erro.textContent = 'Não foi possível carregar o gerador de QR Code. Verifique a conexão e recarregue a página.';
+        erro.hidden = false;
         return;
     }
-
-    const link = document.createElement("a");
-
-    link.href = imagem.src;
-    link.download = "TraceBag-" + codigoTraceBag + ".png";
-
+    try {
+        const bytes = crypto.getRandomValues(new Uint8Array(16));
+        const novoCodigo = 'TB-' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        const endereco = new URL('bagagem.html', window.location.href);
+        endereco.searchParams.set('id', novoCodigo);
+        const container = document.getElementById('qrcode');
+        container.replaceChildren();
+        new QRCode(container, {
+            text: endereco.href, width: 256, height: 256,
+            correctLevel: QRCode.CorrectLevel.M
+        });
+        codigoTraceBag = novoCodigo;
+        document.getElementById('codigoBagagem').textContent = codigoTraceBag;
+        document.getElementById('enderecoBagagem').href = endereco.href;
+        document.getElementById('resultado').hidden = false;
+    } catch (error) {
+        document.getElementById('resultado').hidden = true;
+        erro.textContent = 'Não foi possível gerar o QR Code. Tente novamente.';
+        erro.hidden = false;
+    }
+});
+document.getElementById('baixar').addEventListener('click', function() {
+    const canvas = document.querySelector('#qrcode canvas');
+    const imagem = document.querySelector('#qrcode img');
+    if (!codigoTraceBag || (!canvas && !imagem)) return;
+    // A margem branca é necessária para leitores reconhecerem o QR Code.
+    const origem = canvas || imagem;
+    const etiqueta = document.createElement('canvas');
+    etiqueta.width = etiqueta.height = 288;
+    const ctx = etiqueta.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 288, 288);
+    ctx.drawImage(origem, 16, 16, 256, 256);
+    const link = document.createElement('a');
+    link.href = etiqueta.toDataURL('image/png');
+    link.download = 'TraceBag-' + codigoTraceBag + '.png';
     link.click();
-}
-
-function imprimirQRCode() {
-    window.print();
-}
+});
+document.getElementById('imprimir').addEventListener('click', () => window.print());
 </script>
     
 
