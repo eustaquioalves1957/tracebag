@@ -1,7 +1,118 @@
 <!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Identificação | TraceBag</title><link rel="stylesheet" href="style.css"></head>
-<body><main><h1>TraceBag</h1><h2>Identificação da bagagem</h2><p id="identificacao"></p><p>O serviço de aviso ao proprietário ainda não está disponível. Se encontrou esta bagagem, entregue-a ao setor de achados e perdidos do local.</p><a href="index.html">Página inicial</a></main>
-<script>
-const id = new URLSearchParams(location.search).get('id') || '';
-document.getElementById('identificacao').textContent = /^TB-[A-F0-9]{32}$/.test(id) ? 'Código: ' + id : 'Código de bagagem inválido ou ausente.';
-</script></body></html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identificação da Bagagem | TraceBag</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f4f7fb; color: #14213d; }
+        header { background: #fff; padding: 24px 16px; text-align: center; border-bottom: 1px solid #e5e7eb; }
+        header h1 { margin: 0; font-size: 28px; }
+        header p { margin: 8px 0 0; font-size: 15px; color: #52606d; }
+        main { max-width: 760px; margin: 30px auto; padding: 0 16px; }
+        .card { background: #fff; border-radius: 12px; padding: 28px; box-shadow: 0 4px 18px rgba(0,0,0,.08); }
+        .card h2 { margin-top: 0; font-size: 24px; }
+        dl { margin: 0 0 24px; }
+        dt { font-weight: bold; margin-top: 14px; color: #52606d; font-size: 14px; }
+        dd { margin: 4px 0 0; font-size: 18px; }
+        .codigo { color: #64748b; font-size: 13px; word-break: break-all; }
+        .botao { display: block; text-align: center; padding: 14px; border-radius: 8px; background: #078bb8; color: #fff; font-size: 17px; font-weight: bold; text-decoration: none; }
+        .botao:hover { background: #06769c; }
+        .aviso { margin-top: 22px; padding: 14px; background: #eef8fc; border-radius: 8px; font-size: 14px; line-height: 1.5; color: #334155; }
+        #erro { color: #a01515; font-size: 17px; line-height: 1.5; }
+        footer { text-align: center; padding: 25px 15px; color: #64748b; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>TraceBag</h1>
+        <p>Identificação inteligente para sua bagagem</p>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>Identificação da bagagem</h2>
+            <p id="carregando">Carregando...</p>
+            <p id="erro" role="alert" hidden></p>
+
+            <section id="dados" hidden>
+                <dl>
+                    <dt>Tipo</dt><dd id="tipo"></dd>
+                    <dt>Cor</dt><dd id="cor"></dd>
+                    <dt>Descrição</dt><dd id="descricao"></dd>
+                    <dt>Proprietário</dt><dd id="nome"></dd>
+                    <dt>Código</dt><dd class="codigo" id="codigo"></dd>
+                </dl>
+                <a id="whatsapp" class="botao" target="_blank" rel="noopener" hidden>Avisar o proprietário pelo WhatsApp</a>
+                <div class="aviso">
+                    Você encontrou esta bagagem? Use o botão acima para avisar o proprietário.
+                    Obrigado por ajudar!
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>TraceBag — Identificação e recuperação de bagagens</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyD4fHqAxhgocD8fsul09PNeZulJSEE_oBk",
+    authDomain: "tracebag-d001e.firebaseapp.com",
+    projectId: "tracebag-d001e",
+    storageBucket: "tracebag-d001e.firebasestorage.app",
+    messagingSenderId: "822553226088",
+    appId: "1:822553226088:web:483d2c87780c575ea2c4dd"
+};
+
+const carregando = document.getElementById('carregando');
+const erro = document.getElementById('erro');
+
+function mostrarErro(texto) {
+    carregando.hidden = true;
+    erro.textContent = texto;
+    erro.hidden = false;
+}
+
+async function carregar() {
+    const id = new URLSearchParams(location.search).get('id') || '';
+    if (!/^TB-[A-F0-9]{32}$/.test(id)) {
+        mostrarErro('Código de bagagem inválido ou ausente.');
+        return;
+    }
+    try {
+        const db = getFirestore(initializeApp(firebaseConfig));
+        const snap = await getDoc(doc(db, 'bagagens', id));
+        if (!snap.exists()) {
+            mostrarErro('Bagagem não encontrada. Verifique o QR Code.');
+            return;
+        }
+        const d = snap.data();
+        const nomeCompleto = (d.nome || '').trim();
+        document.getElementById('tipo').textContent = d.tipo || '-';
+        document.getElementById('cor').textContent = d.cor || '-';
+        document.getElementById('descricao').textContent = d.descricao || '-';
+        document.getElementById('nome').textContent = nomeCompleto.split(/\s+/)[0] || '-';
+        document.getElementById('codigo').textContent = id;
+
+        let tel = String(d.telefone || '').replace(/\D/g, '');
+        if (tel.length === 10 || tel.length === 11) tel = '55' + tel;
+        if (tel.length >= 12) {
+            const msg = 'Olá! Encontrei a sua bagagem (código ' + id + ') identificada pelo TraceBag.';
+            const link = document.getElementById('whatsapp');
+            link.href = 'https://wa.me/' + tel + '?text=' + encodeURIComponent(msg);
+            link.hidden = false;
+        }
+        carregando.hidden = true;
+        document.getElementById('dados').hidden = false;
+    } catch (e) {
+        mostrarErro('Não foi possível carregar os dados. Verifique a conexão e tente novamente.');
+    }
+}
+carregar();
+</script>
+</body>
+</html>
