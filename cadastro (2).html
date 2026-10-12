@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastro da Bagagem | TraceBag</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #14213d;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 24px 16px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            font-size: 15px;
+            color: #52606d;
+        }
+
+        main {
+            max-width: 760px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+
+        .descricao {
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: #52606d;
+            line-height: 1.5;
+        }
+
+        .campo {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid #0b8fbf;
+            border-color: #0b8fbf;
+        }
+
+        button {
+            width: 100%;
+            border: 0;
+            border-radius: 8px;
+            padding: 14px;
+            background: #078bb8;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #06769c;
+        }
+
+        .voltar {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #087fa9;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .aviso {
+            margin-top: 22px;
+            padding: 14px;
+            background: #eef8fc;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #334155;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px 15px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+        .qrcode { padding: 16px; background: white; width: fit-content; margin: 16px auto; }
+        .etiqueta { border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin: 16px 0; break-inside: avoid; }
+        .etiqueta .codigo { font-family: monospace; word-break: break-all; }
+        .etiqueta svg { max-width: 100%; height: auto; }
+        #resultado { text-align: center; margin-top: 24px; }
+        #resultado button { margin-top: 12px; }
+        #erro { color: #a01515; }
+        @media print {
+            header, footer, form, .descricao, .aviso, .voltar, .card > h2,
+            #resultado button, #resultado .nota, .etiqueta a, #erro { display: none !important; }
+            body, .card { background: white; box-shadow: none; }
+            .etiqueta { break-inside: avoid; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>TraceBag</h1>
+        <p>Identificação inteligente para sua bagagem</p>
+    </header>
+
+    <main>
+        <div class="card">
+
+            <h2>Cadastro da Bagagem</h2>
+
+            <p class="descricao">
+                Preencha os dados abaixo para identificar sua bagagem.
+            </p>
+
+            <form id="formCadastro">
+
+                <div class="campo">
+                    <label for="nome">Nome do proprietário</label>
+                    <input type="text" id="nome" name="nome"
+                           placeholder="Digite seu nome" required>
+                </div>
+
+                <div class="campo">
+                    <label for="telefone">Telefone / WhatsApp</label>
+                    <input type="tel" id="telefone" name="telefone"
+                           placeholder="(00) 00000-0000" required>
+                </div>
+
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email"
+                           placeholder="seuemail@exemplo.com" required>
+                </div>
+
+                <div class="campo">
+                    <label for="tipo">Tipo de bagagem</label>
+
+                    <select id="tipo" name="tipo" required>
+                        <option value="">Selecione</option>
+                        <option value="mala">Mala</option>
+                        <option value="mochila">Mochila</option>
+                        <option value="bolsa">Bolsa</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="cor">Cor da bagagem</label>
+                    <input type="text" id="cor" name="cor"
+                           placeholder="Ex.: preta, azul, vermelha" required>
+                </div>
+
+                <div class="campo">
+                    <label for="descricao">Descrição da bagagem</label>
+
+                    <textarea id="descricao"
+                              name="descricao"
+                              placeholder="Marca, tamanho ou alguma característica que ajude na identificação"></textarea>
+                </div>
+
+                <div class="campo">
+                    <label for="quantidade">Quantidade de etiquetas</label>
+                    <input type="number" id="quantidade" name="quantidade"
+                           min="1" max="20" value="1" required>
+                </div>
+
+                <button type="submit">
+                    Cadastrar bagagem
+                </button>
+
+            </form>
+
+            <p id="erro" role="alert" hidden></p>
+            <section id="resultado" hidden aria-live="polite">
+                <h2>Etiquetas da bagagem</h2>
+                <div id="etiquetas"></div>
+                <button type="button" id="imprimir">Imprimir etiquetas</button>
+                <p class="nota">Cadastro salvo. Cada etiqueta tem um código único, com QR Code e código de barras. Imprima e cole na bagagem.</p>
+            </section>
+            <div class="aviso">
+                Seus dados pessoais não devem ficar expostos diretamente
+                na bagagem. O objetivo do TraceBag é permitir a identificação
+                por meio de um QR Code.
+            </div>
+
+            <a class="voltar" href="index.html">
+                ← Voltar para a página inicial
+            </a>
+
+        </div>
+    </main>
+
+    <footer>
+        TraceBag — Identificação e recuperação de bagagens
+    </footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyD4fHqAxhgocD8fsul09PNeZulJSEE_oBk",
+    authDomain: "tracebag-d001e.firebaseapp.com",
+    projectId: "tracebag-d001e",
+    storageBucket: "tracebag-d001e.firebasestorage.app",
+    messagingSenderId: "822553226088",
+    appId: "1:822553226088:web:483d2c87780c575ea2c4dd"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+
+const form = document.getElementById('formCadastro');
+
+function novoCodigo() {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    return 'TB-' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
+function criarEtiqueta(numero, codigo) {
+    const endereco = new URL('bagagem.html', window.location.href);
+    endereco.searchParams.set('id', codigo);
+
+    const etiqueta = document.createElement('div');
+    etiqueta.className = 'etiqueta';
+
+    const titulo = document.createElement('p');
+    titulo.textContent = 'Etiqueta ' + numero;
+    const texto = document.createElement('p');
+    texto.className = 'codigo';
+    texto.textContent = codigo;
+
+    const qr = document.createElement('div');
+    qr.className = 'qrcode';
+    new QRCode(qr, {
+        text: endereco.href, width: 256, height: 256,
+        correctLevel: QRCode.CorrectLevel.M
+    });
+
+    const barras = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    JsBarcode(barras, codigo, { format: 'CODE128', width: 1.4, height: 60, displayValue: false, margin: 10 });
+
+    const linkP = document.createElement('p');
+    const link = document.createElement('a');
+    link.href = endereco.href;
+    link.textContent = 'Abrir identificação';
+    linkP.appendChild(link);
+
+    const baixar = document.createElement('button');
+    baixar.type = 'button';
+    baixar.textContent = 'Baixar QR Code';
+    baixar.addEventListener('click', function() {
+        const origem = qr.querySelector('canvas') || qr.querySelector('img');
+        if (!origem) return;
+        // A margem branca é necessária para leitores reconhecerem o QR Code.
+        const imagem = document.createElement('canvas');
+        imagem.width = imagem.height = 288;
+        const ctx = imagem.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 288, 288);
+        ctx.drawImage(origem, 16, 16, 256, 256);
+        const download = document.createElement('a');
+        download.href = imagem.toDataURL('image/png');
+        download.download = 'TraceBag-' + codigo + '.png';
+        download.click();
+    });
+
+    etiqueta.append(titulo, texto, qr, barras, linkP, baixar);
+    return etiqueta;
+}
+
+form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const erro = document.getElementById('erro');
+    erro.hidden = true;
+    if (typeof QRCode === 'undefined' || typeof JsBarcode === 'undefined') {
+        erro.textContent = 'Não foi possível carregar os geradores de QR Code e código de barras. Verifique a conexão e recarregue a página.';
+        erro.hidden = false;
+        return;
+    }
+    const quantidade = Math.min(20, Math.max(1, parseInt(document.getElementById('quantidade').value, 10) || 1));
+    const botao = form.querySelector('button[type="submit"]');
+    try {
+        const codigos = Array.from({ length: quantidade }, novoCodigo);
+        const dados = {
+            nome: document.getElementById('nome').value.trim(),
+            telefone: document.getElementById('telefone').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            tipo: document.getElementById('tipo').value,
+            cor: document.getElementById('cor').value.trim(),
+            descricao: document.getElementById('descricao').value.trim()
+        };
+        botao.disabled = true;
+        botao.textContent = 'Salvando...';
+        try {
+            await Promise.all(codigos.map(codigo =>
+                setDoc(doc(db, 'bagagens', codigo), { ...dados, criadoEm: serverTimestamp() })
+            ));
+        } finally {
+            botao.disabled = false;
+            botao.textContent = 'Cadastrar bagagem';
+        }
+        const area = document.getElementById('etiquetas');
+        area.replaceChildren();
+        codigos.forEach((codigo, i) => area.appendChild(criarEtiqueta(i + 1, codigo)));
+        document.getElementById('resultado').hidden = false;
+    } catch (error) {
+        document.getElementById('resultado').hidden = true;
+        erro.textContent = 'Não foi possível salvar o cadastro e gerar as etiquetas. Verifique a conexão e tente novamente.';
+        erro.hidden = false;
+    }
+});
+document.getElementById('imprimir').addEventListener('click', () => window.print());
+</script>
+    
+
+</body>
+</html>
